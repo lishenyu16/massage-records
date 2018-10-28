@@ -44,8 +44,8 @@
                   v-model="comments">
         </div>
         <div class="submit">
-          <button type="submit">Submit</button>
           <button @click="$router.push('/dashboard')">Cancel</button>
+          <button type="submit">Submit</button>          
         </div>
       </form>
     </div>

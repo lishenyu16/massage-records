@@ -3,9 +3,13 @@ import Vuex from 'vuex'
 import axios from './axios-auth'
 import globalAxios from 'axios'
 import router from './router'
+import entries from './store/entries'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
+  modules:{
+    entries
+  },
   state: {
     idToken: null,
     userId: null,

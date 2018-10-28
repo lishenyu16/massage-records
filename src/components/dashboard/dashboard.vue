@@ -1,27 +1,27 @@
 <template>
   <div id="dashboard">
-    <form  class="search-form">
+    <form  class="search-form" @submit.prevent="onSubmit">
       <div class="search-area">
         <input 
           class="phone-input"
-          type="number" 
+          type="text" 
           placeholder="Phone Number" 
           v-model="phone">
         <button @click="searchByPhone" class="search-button">Search</button>
       </div>
       <div class="new" v-if="!entryForm">
-        <button @click.prevent="entryForm=!entryForm"  style="float:left; margin-left:5px">New Entry</button>
-        <router-link to="/new">New User</router-link>
+        <button @click.prevent="entryForm=!entryForm" v-if="result.length!=0 && searching" style="float:left; margin-left:5px">新记录</button>
+        <router-link to="/new">新客户</router-link>
       </div>
       <div class="new-record" v-if="entryForm">
         <div class="input">
-          <label for="phone">Phone Number:</label><span>6264668502</span>
+          <label for="phone">Phone Number: {{phone}}</label><br>
         </div>
-        <div class="input">
-          <label for="age">Customer Name:</label><span>Lily</span>
+        <div class="input" style="margin-right:auto">
+          <label for="age">Customer Name: {{name}}</label><br>
         </div>
-        <div class="input">
-          <label for="data">Date:</label><span>{{today}}</span>
+        <div class="input" style="margin-right:auto">
+          <label for="data">Date: {{today}}</label><br>
         </div>
         <div class="input">
           <label for="technician">Technician Name:</label>
@@ -51,32 +51,57 @@
         </div>
       </div>
     </form>
+    <div v-if="result.length===0 && searching" class="search-form">
+      <h1>No Service Records!</h1>
+    </div>
+    <div v-if="result.length!=0 && searching" >
+      <table class="table table-hover table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Phone Number</th>
+            <th scope="col">Name</th>
+            <th scope="col">Date</th>
+            <th scope="col">Technician</th>
+            <th scope="col">Type</th>
+            <th scope="col">Comments</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(entry,index) in result">
+            <th scope="row">{{index}}</th>
+            <td>{{entry.phone}}</td>
+            <td>{{entry.name}}</td>
+            <td>{{entry.date}}</td>
+            <td>{{entry.technician}}</td>
+            <td>{{entry.type}}</td>
+            <td>{{entry.comments}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <hr>
     <table class="table table-hover table-striped">
       <thead>
         <tr>
           <th scope="col">#</th>
-          <th scope="col">First</th>
-          <th scope="col">Last</th>
-          <th scope="col">Handle</th>
+          <th scope="col">Phone Number</th>
+          <th scope="col">Name</th>
+          <th scope="col">Date</th>
+          <th scope="col">Technician</th>
+          <th scope="col">Type</th>
+          <th scope="col">Comments</th>
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <th scope="row">1</th>
-          <td>Mark</td>
-          <td>Otto</td>
-          <td>@mdo</td>
-        </tr>
-        <tr>
-          <th scope="row">2</th>
-          <td>Jacob</td>
-          <td>Thornton</td>
-          <td>@fat</td>
-        </tr>
-        <tr>
-          <th scope="row">3</th>
-          <td colspan="2">Larry the Bird</td>
-          <td>@twitter</td>
+        <tr v-for="(entry,index) in entries">
+          <th scope="row">{{index}}</th>
+          <td>{{entry.phone}}</td>
+          <td>{{entry.name}}</td>
+          <td>{{entry.date}}</td>
+          <td>{{entry.technician}}</td>
+          <td>{{entry.type}}</td>
+          <td>{{entry.comments}}</td>
         </tr>
       </tbody>
     </table>
@@ -94,15 +119,8 @@
         type: 'Body',
         comments: '',
         entryForm:false,
-        entries: [
-          {phone:6264668502,name:'jim',date:'10/23/2018',technician:'lili',type:'body',comments:''},
-          {phone:6264668502,name:'jim',date:'10/21/2018',technician:'lili',type:'combo',comments:''},
-          {phone:6264668502,name:'jim',date:'10/19/2018',technician:'nono',type:'foot',comments:''},
-          {phone:1111111,name:'mike',date:'10/22/2018',technician:'haha',type:'combo',comments:''},
-          {phone:222222,name:'kevin',date:'10/21/2018',technician:'nono',type:'body',comments:''},
-          {phone:3333333,name:'james',date:'10/20/2018',technician:'haha',type:'combo',comments:''},
-          {phone:444444,name:'selina',date:'10/25/2018',technician:'nono',type:'foot',comments:''}
-        ]
+        result: [],
+        searching: false,
       }
     },
     computed: {
@@ -121,17 +139,41 @@
         const dateOfToday = mm + '/' + dd + '/' + yyyy;
         return dateOfToday
       },
+      entries(){
+        return this.$store.getters.entries
+      }
     },
     methods: {
       onSubmit(){
-
+        // collect form info as an obj and push it back to state management
       },
       showNewEntry() {
         this.entryForm=!this.entryForm
-        console.log(this.entryForm)
       },
       searchByPhone(){
-
+        this.result = []
+        this.searching = true
+        const entries = this.$store.getters.entries
+        const record = entries.find(element=>element.phone == this.phone)
+        if(record){
+          //Phone, name, date pre-filled
+          this.name = record.name
+          this.date = this.today
+          for(let i=0;i<=entries.length;i++){
+            if(entries[i].phone == this.phone){
+              this.result.push(entries[i])
+            }
+          }
+          const result = entries.map(element=>{
+            if(element.phone== this.phone){
+              result.push(element)
+            }
+          })
+          //.....
+        }
+        else{
+          this.result = []
+        }
       }
     },
 
@@ -233,7 +275,7 @@
 
   .submit button {
     border: 1px solid #521751;
-    color: #521751;
+    color: #5ebdda;
     padding: 10px 20px;
     font: inherit;
     cursor: pointer;
