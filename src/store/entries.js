@@ -6,14 +6,20 @@ const state = {
 }
 
 const mutations = {
-    setEntries(state,datas){
+    SET_ENTRIES(state,datas){
         state.entries = datas
+    },
+    ADD_ENTRY(state,entry){
+        state.entries.push(entry)
     }
 }
 
 const actions = {
+    addEntry({commit,state},entry){
+        commit('ADD_ENTRY',entry)
+    },
     initEntries({commit,state}){
-        commit('setEntries',data_entries)
+        commit('SET_ENTRIES',data_entries)
     }
 }
 

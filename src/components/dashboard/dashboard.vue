@@ -1,14 +1,14 @@
 <template>
   <div id="dashboard">
+    <div class="search-form">
+      <input 
+        class="phone-input"
+        type="text" 
+        placeholder="Phone Number" 
+        v-model="phone">
+      <button @click="searchByPhone" class="search-button">Search</button>
+    </div>
     <form  class="search-form" @submit.prevent="onSubmit">
-      <div class="search-area">
-        <input 
-          class="phone-input"
-          type="text" 
-          placeholder="Phone Number" 
-          v-model="phone">
-        <button @click="searchByPhone" class="search-button">Search</button>
-      </div>
       <div class="new" v-if="!entryForm">
         <button @click.prevent="entryForm=!entryForm" v-if="result.length!=0 && searching" style="float:left; margin-left:5px">新记录</button>
         <router-link to="/new">新客户</router-link>
@@ -146,6 +146,17 @@
     methods: {
       onSubmit(){
         // collect form info as an obj and push it back to state management
+        const entry = {phone:this.phone,name:this.name,date:this.date,technician:this.technician,type:this.type,comments:this.comments}
+        this.$store.dispatch('addEntry',entry)
+        this.phone ='',
+        this.name='',
+        this.date = '',
+        this.technician = '',
+        this.type = '',
+        this.comments = '',
+        this.entryForm = false,
+        this.result = [],
+        this.searching = false
       },
       showNewEntry() {
         this.entryForm=!this.entryForm
