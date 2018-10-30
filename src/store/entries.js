@@ -1,4 +1,5 @@
 import data_entries from '../data/data-entries'
+import axios from "axios"
 
 const state = {
     entries:[],
@@ -6,20 +7,48 @@ const state = {
 }
 
 const mutations = {
-    SET_ENTRIES(state,datas){
-        state.entries = datas
+    SET_ENTRIES(state){
+        // state.entries = datas
+        axios.get('/entries.json')
+        .then((res)=>{
+            if(res.data){
+                // console.log(res.data)
+                state.entries = []
+                for(let key in res.data){
+                    state.entries.push(res.data[key])
+                }
+
+                console.log(state.entries)
+            }
+            else{
+                console.log("no datas")
+            }
+        })
     },
-    ADD_ENTRY(state,entry){
-        state.entries.push(entry)
-    }
+    // ADD_ENTRY(state,commit,entry){
+    //     console.log("this is an entry to be added: ",entry)
+    //     axios.post('/entries.json',entry)
+    //     .then((res)=>{
+    //         console.log(res)
+    //         commit('SET_ENTRIES')
+    //     })
+    //     .catch(err=>console.log(err))
+    //     // state.entries.push(entry)
+    // }
 }
 
 const actions = {
     addEntry({commit,state},entry){
-        commit('ADD_ENTRY',entry)
+        // console.log("this is an entry to be added: ",entry)
+        axios.post('/entries.json',entry)
+        .then((res)=>{
+            console.log(res)
+            commit('SET_ENTRIES')
+        })
+        .catch(err=>console.log(err))
     },
     initEntries({commit,state}){
-        commit('SET_ENTRIES',data_entries)
+        commit('SET_ENTRIES')
     }
 }
 

@@ -2,7 +2,6 @@
   <div id="welcome">
     <h1>Massage Records System</h1>
     <div class="cta" v-if="!auth">
-      <router-link to="/signup">Sign Up</router-link>
       <router-link to="/signin">登陆</router-link>
     </div>
   </div>

@@ -152,7 +152,7 @@
         this.name='',
         this.date = '',
         this.technician = '',
-        this.type = '',
+        // this.type = '',
         this.comments = '',
         this.entryForm = false,
         this.result = [],
@@ -203,13 +203,13 @@
   .search-form .search-area{
     margin: 10px auto;
   }
-  .search-form .search-area .phone-input{
+  .search-form .phone-input{
     width:40%;
     margin: 5px 5px 0;
     padding: 10px;
     font: inherit;
   }
-  .search-form .search-area .search-button{
+  .search-form .search-button{
     width:100px;
     margin: 5px 5px 0;
     padding: 10px;

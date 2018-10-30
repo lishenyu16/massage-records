@@ -13,7 +13,8 @@
       'app-header': Header
     },
     created(){
-    this.$store.dispatch('initEntries')
+      this.$store.dispatch('initEntries')
+      this.$store.dispatch('tryAutoLogin')
     }
   }
 </script>

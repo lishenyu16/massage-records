@@ -4,11 +4,13 @@ import axios from './axios-auth'
 import globalAxios from 'axios'
 import router from './router'
 import entries from './store/entries'
+import customers from './store/customers'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   modules:{
-    entries
+    entries,
+    customers
   },
   state: {
     idToken: null,
@@ -67,7 +69,7 @@ export default new Vuex.Store({
       .catch(err=>console.log(err))
     },
     login({commit,dispatch,state},authData){
-      axios.post('verifyPassword?key=AIzaSyCFO-jtb0GIJWHWiBqpgpzn9VkUnIWpsq0',{
+      axios.post('verifyPassword?key=AIzaSyBRK6L8FD0IoTq43KLZ3e2QrKxEBEwoU_A',{
         email:authData.email,
         password: authData.password,
         returnSecureToken : true
@@ -107,7 +109,7 @@ export default new Vuex.Store({
         return
       }
       commit('authUser', { token:token, userId:userId, email:email} )
-      dispatch('fetchUser')
+      // dispatch('fetchUser')
     },
     logout({commit,state}){
       state.signed_up=false
@@ -128,7 +130,8 @@ export default new Vuex.Store({
     fetchUser({commit,state}){
       if(!state.idToken){
         return
-      }
+      } 
+      console.log("does it come here?? ")
       globalAxios.get('/users.json' + "?auth="+state.idToken)
       .then(res => {
           const data = res.data

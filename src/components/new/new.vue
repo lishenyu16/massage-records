@@ -1,11 +1,12 @@
 <template>
   <div id="new">
     <div class="new-form">
+      <!-- @submit.prevent="onSubmit" -->
       <form @submit.prevent="onSubmit">
         <div class="input">
           <label for="phone">Phone Number</label>
           <input
-                  type="number"
+                  type="text"
                   id="phone"
                   v-model="phone">
         </div>
@@ -14,12 +15,11 @@
           <input
                   type="text"
                   id="name"
-                  @blur="$v.name.$touch()"
                   v-model="name">
         </div>
         <div class="input">
-          <label for="data">Date</label><span>{{today}}</span>
-
+          <label for="data">Date: {{today}}</label>
+          <br>
         </div>
         <div class="input">
           <label for="technician">Technician Name</label>
@@ -44,7 +44,7 @@
                   v-model="comments">
         </div>
         <div class="submit">
-          <button @click="$router.push('/dashboard')">Cancel</button>
+          <button type="cancel" @click.prevent="$router.replace('/dashboard')">Cancel</button>
           <button type="submit">Submit</button>          
         </div>
       </form>
@@ -60,7 +60,7 @@
       return {
         name: '',
         phone: null,
-        date:'',
+        // date:'',
         technician: '',
         type: 'Body',
         comments: ''
@@ -71,14 +71,15 @@
         const formData = {
           name: this.name,
           phone: this.phone,
-          date: this.date,
+          date: this.today,
           technician: this.technician,
           type: this.type,
           // hobbies: this.hobbyInputs.map(hobby => hobby.value),
           comments: this.comments
         }
-        console.log(formData)
-        // this.$store.dispatch('signup',formData)
+
+        this.$store.dispatch('addCustomer',formData)
+        this.$router.push('/dashboard')
       }
     },
     computed: {
@@ -97,12 +98,12 @@
         const dateOfToday = mm + '/' + dd + '/' + yyyy;
         return dateOfToday
       },
-      unmatch() {
-        return this.password!=this.confirmPassword 
-      },
-      signed_up(){
-        return this.$store.getters.signed_up
-      }
+      // unmatch() {
+      //   return this.password!=this.confirmPassword 
+      // },
+      // signed_up(){
+      //   return this.$store.getters.signed_up
+      // }
     },
   }
 </script>
@@ -114,7 +115,7 @@
   #new{
     text-align: center;
     padding-top: 40px;
-    color:rgb(0, 255, 255);
+    color:rgb(30, 83, 20);
   }
   .new-form {
     width: 400px;
