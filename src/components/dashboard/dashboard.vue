@@ -65,6 +65,7 @@
             <th scope="col">Technician</th>
             <th scope="col">Type</th>
             <th scope="col">Comments</th>
+            <th scope="col">Operations</th>
           </tr>
         </thead>
         <tbody>
@@ -76,6 +77,7 @@
             <td>{{entry.technician}}</td>
             <td>{{entry.type}}</td>
             <td>{{entry.comments}}</td>
+            <td><router-link to="/modify">Modify</router-link> | <button @click="deleteEntry(entry)">Delete</button></td>
           </tr>
         </tbody>
       </table>
@@ -91,20 +93,26 @@
           <th scope="col">Technician</th>
           <th scope="col">Type</th>
           <th scope="col">Comments</th>
+          <th scope="col">Operations</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(entry,index) in entries">
-          <th scope="row">{{index}}</th>
+          <th scope="row">{{index+1}}</th>
           <td>{{entry.phone}}</td>
           <td>{{entry.name}}</td>
           <td>{{entry.date}}</td>
           <td>{{entry.technician}}</td>
           <td>{{entry.type}}</td>
           <td>{{entry.comments}}</td>
+          <td>
+              <router-link :to='{path: "/modify", query:{entry: entry}}' type="button" class="btn btn-default">Modify</router-link>
+              <!-- <button type="button" class="btn btn-default">Modify</button>                  -->
+            | <button @click="deleteEntry(entry)" class="btn btn-default">Delete</button></td>
         </tr>
       </tbody>
     </table>
+    
   </div>
 </template>
 <script>
@@ -184,6 +192,15 @@
         }
         else{
           this.result = []
+        }
+      },
+      deleteEntry(entry){
+        if (confirm('Delete this record?')) {
+            this.$store.dispatch('deleteEntry',entry)
+            //should put below operation in entries.js instead of here
+            this.$router.replace('/dashboard')
+        } else {
+            return
         }
       }
     },

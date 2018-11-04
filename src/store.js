@@ -5,6 +5,7 @@ import globalAxios from 'axios'
 import router from './router'
 import entries from './store/entries'
 import customers from './store/customers'
+import * as firebase from 'firebase'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -69,6 +70,12 @@ export default new Vuex.Store({
       .catch(err=>console.log(err))
     },
     login({commit,dispatch,state},authData){
+      firebase.auth().signInWithEmailAndPassword(authData.email, authData.password).catch(function(error) {
+        // Handle Errors here.
+        console.log(error.code);
+        console.log(error.message);
+        // ...
+      });
       axios.post('verifyPassword?key=AIzaSyBRK6L8FD0IoTq43KLZ3e2QrKxEBEwoU_A',{
         email:authData.email,
         password: authData.password,
@@ -79,6 +86,7 @@ export default new Vuex.Store({
         state.wrong_pw = false
         const now = new Date()
         const expirationDate = new Date(now.getTime() + res.data.expiresIn*1000)
+        // console.log("token: ",res.data.idToken)
         localStorage.setItem('token',res.data.idToken)
         localStorage.setItem('userId',res.data.localId)
         localStorage.setItem('expirationDate',expirationDate)
@@ -112,6 +120,14 @@ export default new Vuex.Store({
       // dispatch('fetchUser')
     },
     logout({commit,state}){
+      firebase.auth().signOut()
+      .then(function() {
+        // Sign-out successful.
+      })
+      .catch(function(error) {
+        // An error happened
+      });
+      
       state.signed_up=false
       commit('clearAuthData')
       localStorage.removeItem('userId')
