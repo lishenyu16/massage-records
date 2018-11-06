@@ -70,70 +70,87 @@ export default new Vuex.Store({
       .catch(err=>console.log(err))
     },
     login({commit,dispatch,state},authData){
-      firebase.auth().signInWithEmailAndPassword(authData.email, authData.password).catch(function(error) {
-        // Handle Errors here.
-        console.log(error.code);
-        console.log(error.message);
-        // ...
-      });
-      axios.post('verifyPassword?key=AIzaSyBRK6L8FD0IoTq43KLZ3e2QrKxEBEwoU_A',{
-        email:authData.email,
-        password: authData.password,
-        returnSecureToken : true
-      }) 
-      .then(res=>{
-        console.log(res)
+      firebase.auth().signInWithEmailAndPassword(authData.email, authData.password)
+      .then(user=>{
+        dispatch('initEntries')
+        localStorage.setItem('userId',user.uid)
+        const signedIdUser = {
+          id:user.uid
+        }
+        commit('storeUser',signedIdUser)
         state.wrong_pw = false
-        const now = new Date()
-        const expirationDate = new Date(now.getTime() + res.data.expiresIn*1000)
-        // console.log("token: ",res.data.idToken)
-        localStorage.setItem('token',res.data.idToken)
-        localStorage.setItem('userId',res.data.localId)
-        localStorage.setItem('expirationDate',expirationDate)
-        localStorage.setItem('email',res.data.email)
-        commit('authUser',{
-          token: res.data.idToken,
-          userId: res.data.localId,
-          email: res.data.email
-        })
-        dispatch('setLogoutTimer',res.data.expiresIn)
         router.replace('./dashboard')
       })
       .catch(err=>{
-        console.log(err)
         state.wrong_pw = true
       })
+
+      // axios.post('verifyPassword?key=AIzaSyBRK6L8FD0IoTq43KLZ3e2QrKxEBEwoU_A',{
+      //   email:authData.email,
+      //   password: authData.password,
+      //   returnSecureToken : true
+      // }) 
+      // .then(res=>{
+      //   console.log(res)
+      //   state.wrong_pw = false
+      //   const now = new Date()
+      //   const expirationDate = new Date(now.getTime() + res.data.expiresIn*1000)
+      //   // console.log("token: ",res.data.idToken)
+      //   localStorage.setItem('token',res.data.idToken)
+      //   localStorage.setItem('userId',res.data.localId)
+      //   localStorage.setItem('expirationDate',expirationDate)
+      //   localStorage.setItem('email',res.data.email)
+      //   commit('authUser',{
+      //     token: res.data.idToken,
+      //     userId: res.data.localId,
+      //     email: res.data.email
+      //   })
+      //   dispatch('setLogoutTimer',res.data.expiresIn)
+      //   router.replace('./dashboard')
+      // })
+      // .catch(err=>{
+      //   console.log(err)
+      //   state.wrong_pw = true
+      // })
     },
     tryAutoLogin({commit,dispatch}){
-      const token = localStorage.getItem('token')
+      // const token = localStorage.getItem('token')
       const userId = localStorage.getItem('userId')
-      const email = localStorage.getItem('email')
-      if(!token){
+      // const email = localStorage.getItem('email')
+      if(!userId){
         return
       }
-      const expirationDate = localStorage.getItem('expirationDate')
-      const now = new Date()
-      if(expirationDate<=now){
-        return
+      const signedIdUser = {
+        id:userId
       }
-      commit('authUser', { token:token, userId:userId, email:email} )
+      commit('storeUser',signedIdUser)
+      router.replace('./dashboard')
+      // const expirationDate = localStorage.getItem('expirationDate')
+      // const now = new Date()
+      // if(expirationDate<=now){
+      //   return
+      // }
+      // commit('authUser', { token:token, userId:userId, email:email} )
       // dispatch('fetchUser')
     },
     logout({commit,state}){
       firebase.auth().signOut()
       .then(function() {
-        // Sign-out successful.
+        state.user=null
+        state.signed_up=false
+        localStorage.removeItem('userId')
+        router.replace('./signin')
       })
       .catch(function(error) {
         // An error happened
       });
-      
-      state.signed_up=false
-      commit('clearAuthData')
-      localStorage.removeItem('userId')
-      localStorage.removeItem('token')
-      localStorage.removeItem('expirationDate')
-      router.replace('./signin')
+
+      // state.signed_up=false
+      // commit('clearAuthData')
+      // localStorage.removeItem('userId')
+      // localStorage.removeItem('token')
+      // localStorage.removeItem('expirationDate')
+      // router.replace('./signin')
     },
     storeUser({commit,state},userData){
       if(!state.idToken){

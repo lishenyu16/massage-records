@@ -5,13 +5,13 @@
     </div>
     <nav>
       <ul>
-        <li v-if="!auth">
+        <li v-if="!authenticatedUser">
           <router-link to="/signin">Sign In</router-link>
         </li>
-        <li v-if="auth">
+        <li v-if="authenticatedUser">
           <router-link to="/dashboard">Dashboard</router-link>
         </li>
-        <li v-if="auth">
+        <li v-if="authenticatedUser">
           <button @click="logout" class="btn btn-primary">Log Out</button>
         </li>
       </ul>
@@ -23,6 +23,9 @@
     computed: {
       auth() {
         return this.$store.getters.isAuthenticated
+      },
+      authenticatedUser() {
+        return this.$store.getters.user!=null && this.$store.getters.user!=undefined
       }
     },
     methods: {

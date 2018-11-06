@@ -4,16 +4,26 @@
       <input 
         class="phone-input"
         type="text" 
-        placeholder="Phone Number" 
-        v-model="phone">
+        placeholder="Phone Number or Date (yyyy-mm-dd)" 
+        v-model="target">
       <button @click="searchByPhone" class="search-button">Search</button>
+      <br>
+      <input 
+        class="phone-input"
+        type="text" 
+        placeholder="Member ID" 
+        v-model="mem">
+      <button @click="searchByMem" class="search-button">Search ID</button>
     </div>
     <form  class="search-form" @submit.prevent="onSubmit">
       <div class="new" v-if="!entryForm">
         <button @click.prevent="entryForm=!entryForm" v-if="result.length!=0 && searching" style="float:left; margin-left:5px">新记录</button>
-        <router-link to="/new">新客户</router-link>
+        <router-link to="/newCustomer">新客户</router-link>
       </div>
       <div class="new-record" v-if="entryForm">
+        <div class="input">
+          <label for="mem">Member ID: {{mem}}</label><br>
+        </div>
         <div class="input">
           <label for="phone">Phone Number: {{phone}}</label><br>
         </div>
@@ -21,7 +31,11 @@
           <label for="age">Customer Name: {{name}}</label><br>
         </div>
         <div class="input" style="margin-right:auto">
-          <label for="data">Date: {{today}}</label><br>
+          <label for="data">Date:</label><br>
+          <input
+                  type="date"
+                  id="date"
+                  v-model="date">
         </div>
         <div class="input">
           <label for="technician">Technician Name:</label>
@@ -52,13 +66,14 @@
       </div>
     </form>
     <div v-if="result.length===0 && searching" class="search-form">
-      <h1>No Service Records!</h1>
+      <h2>No Service Records!</h2>
     </div>
     <div v-if="result.length!=0 && searching" >
       <table class="table table-hover table-striped">
         <thead>
           <tr>
             <th scope="col">#</th>
+            <th scope="col">Member ID</th>
             <th scope="col">Phone Number</th>
             <th scope="col">Name</th>
             <th scope="col">Date</th>
@@ -70,23 +85,27 @@
         </thead>
         <tbody>
           <tr v-for="(entry,index) in result">
-            <th scope="row">{{index}}</th>
+            <th scope="row">{{index+1}}</th>
+            <td>{{entry.mem}}</td>
             <td>{{entry.phone}}</td>
             <td>{{entry.name}}</td>
             <td>{{entry.date}}</td>
             <td>{{entry.technician}}</td>
             <td>{{entry.type}}</td>
             <td>{{entry.comments}}</td>
-            <td><router-link to="/modify">Modify</router-link> | <button @click="deleteEntry(entry)">Delete</button></td>
+            <td><router-link :to='{path: "/modify", query:{entry: entry}}' type="button" class="btn btn-default">Modify</router-link>
+              | <button @click="deleteEntry(entry)" class="btn btn-default">Delete</button></td>
           </tr>
         </tbody>
       </table>
     </div>
-    <hr>
+    <hr><br>
+    <h3 class="col-sm-6 col-sm-offset-2">Service Records for Today:</h3>
     <table class="table table-hover table-striped">
       <thead>
         <tr>
           <th scope="col">#</th>
+          <th scope="col">Member ID</th>
           <th scope="col">Phone Number</th>
           <th scope="col">Name</th>
           <th scope="col">Date</th>
@@ -99,6 +118,7 @@
       <tbody>
         <tr v-for="(entry,index) in entries">
           <th scope="row">{{index+1}}</th>
+          <td>{{entry.mem}}</td>
           <td>{{entry.phone}}</td>
           <td>{{entry.name}}</td>
           <td>{{entry.date}}</td>
@@ -107,7 +127,6 @@
           <td>{{entry.comments}}</td>
           <td>
               <router-link :to='{path: "/modify", query:{entry: entry}}' type="button" class="btn btn-default">Modify</router-link>
-              <!-- <button type="button" class="btn btn-default">Modify</button>                  -->
             | <button @click="deleteEntry(entry)" class="btn btn-default">Delete</button></td>
         </tr>
       </tbody>
@@ -117,10 +136,13 @@
 </template>
 <script>
   import axios from 'axios'
+  import * as firebase from 'firebase'
   export default {
     data() {
       return {
+        target:'',
         phone:'',
+        mem:'',
         name:'',
         date:'',
         technician: '',
@@ -154,8 +176,9 @@
     methods: {
       onSubmit(){
         // collect form info as an obj and push it back to state management
-        const entry = {phone:this.phone,name:this.name,date:this.date,technician:this.technician,type:this.type,comments:this.comments}
+        const entry = {mem:this.mem.trim(),phone:this.phone.trim(),name:this.name,date:this.date,technician:this.technician,type:this.type,comments:this.comments}
         this.$store.dispatch('addEntry',entry)
+        this.mem ='',
         this.phone ='',
         this.name='',
         this.date = '',
@@ -169,36 +192,124 @@
       showNewEntry() {
         this.entryForm=!this.entryForm
       },
-      searchByPhone(){
-        this.result = []
+      searchByMem(){
         this.searching = true
-        const entries = this.$store.getters.entries
-        const record = entries.find(element=>element.phone == this.phone)
-        if(record){
-          //Phone, name, date pre-filled
-          this.name = record.name
-          this.date = this.today
-          for(let i=0;i<=entries.length;i++){
-            if(entries[i].phone == this.phone){
-              this.result.push(entries[i])
+        firebase.database().ref('entries').orderByChild('mem').equalTo(this.mem.trim()).once('value')
+        .then(data=>{
+            const obj = data.val()
+            const entries =[]
+            for(let key in obj){
+                entries.push({
+                    id:key,
+                    mem:obj[key].mem,
+                    phone:obj[key].phone,
+                    name:obj[key].name,
+                    date:obj[key].date,
+                    technician:obj[key].technician,
+                    type:obj[key].type,
+                    comments:obj[key].comments
+                })
             }
-          }
-          const result = entries.map(element=>{
-            if(element.phone== this.phone){
-              result.push(element)
-            }
-          })
-          //.....
+            this.result = entries
+        })
+      },
+      searchByPhone(){
+        this.searching = true
+        if(this.target.includes('-')){
+          // this.searching = false
+          firebase.database().ref('entries').orderByChild('date').equalTo(this.target.trim()).once('value')
+          .then(data=>{
+              const obj = data.val()
+              const entries =[]
+              for(let key in obj){
+                  entries.push({
+                      id:key,
+                      mem:obj[key].mem,
+                      phone:obj[key].phone,
+                      name:obj[key].name,
+                      date:obj[key].date,
+                      technician:obj[key].technician,
+                      type:obj[key].type,
+                      comments:obj[key].comments
+                  })
+              }
+              this.result = entries
+          }) 
+        
+          //////////////////-----------------------------------------------------------------auth is required!
+          // axios.get('/entries.json?orderBy="date"&equalTo="'+this.target.trim()+'"')
+          // .then(res=>{
+          //   if(res.data){
+          //     const results = []
+          //     for(let key in res.data){
+          //       results.push({
+          //           id:key,
+          //           phone:res.data[key].phone,
+          //           name:res.data[key].name,
+          //           date:res.data[key].date,
+          //           technician:res.data[key].technician,
+          //           type:res.data[key].type,
+          //           comments:res.data[key].comments
+          //       })
+          //     }
+          //     this.result = results
+          //   }
+          //   else{
+          //     this.result = []
+          //   }
+          // })
         }
         else{
-          this.result = []
+          firebase.database().ref('entries').orderByChild('phone').equalTo(this.target.trim()).once('value')
+          .then(data=>{
+              const obj = data.val()
+              if(obj!=null && obj!= undefined){
+                this.phone = this.target.trim()
+                this.name = obj[Object.keys(obj)[0]].name
+              }
+
+              const entries =[]
+              for(let key in obj){
+                  entries.push({
+                      id:key,
+                      mem:obj[key].mem,
+                      phone:obj[key].phone,
+                      name:obj[key].name,
+                      date:obj[key].date,
+                      technician:obj[key].technician,
+                      type:obj[key].type,
+                      comments:obj[key].comments
+                  })
+              }
+              this.result = entries
+          })           
+          // axios.get('/entries.json?orderBy="phone"&equalTo="'+this.target.trim()+'"')
+          // .then(res=>{
+          //   if(res.data){
+          //     this.result=[]
+          //       for(let key in res.data){
+          //           this.result.push({
+          //               id:key,
+          //               phone:res.data[key].phone,
+          //               name:res.data[key].name,
+          //               date:res.data[key].date,
+          //               technician:res.data[key].technician,
+          //               type:res.data[key].type,
+          //               comments:res.data[key].comments
+          //           })
+          //       }
+          //   }
+          //   else{
+          //     this.result = []
+          //   }
+          // })         
         }
       },
       deleteEntry(entry){
         if (confirm('Delete this record?')) {
             this.$store.dispatch('deleteEntry',entry)
             //should put below operation in entries.js instead of here
-            this.$router.replace('/dashboard')
+            this.searching = false
         } else {
             return
         }

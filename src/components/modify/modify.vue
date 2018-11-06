@@ -2,6 +2,12 @@
 <div class="container">
     <form class="form">
         <div class="form-group row">
+            <label class="col-sm-1 col-sm-offset-4 col-form-label">Member ID:</label>
+            <div class="col-sm-3">
+                <input type="text" class="form-control" v-model.lazy="mem">
+            </div>
+        </div>
+        <div class="form-group row">
             <label class="col-sm-1 col-sm-offset-4 col-form-label">Phone:</label>
             <div class="col-sm-3">
                 <input type="text" class="form-control" v-model.lazy="phone">
@@ -16,7 +22,7 @@
         <div class="form-group row">
             <label  class="col-sm-1 col-sm-offset-4 col-form-label">Date:</label>
             <div class="col-sm-3">
-                <input type="text" class="form-control" disabled v-model.lazy="date">
+                <input type="date" class="form-control"  v-model.lazy="date">
             </div>
         </div>
         <div class="form-group row">
@@ -38,7 +44,7 @@
         <div class="form-group row">
             <label class="col-sm-1 col-sm-offset-4 col-form-label">Comments:</label>
             <div class="col-sm-3">
-                <textarea class="form-control" rows="3"></textarea>
+                <textarea class="form-control" rows="3" v-model.lazy="comments">{{comments}}</textarea>
             </div>           
         </div>
 
@@ -60,6 +66,7 @@
         data() {
             return {
                 id: this.$route.query.entry.id,
+                mem: this.$route.query.entry.mem,
                 phone: this.$route.query.entry.phone,
                 name: this.$route.query.entry.name,
                 date: this.$route.query.entry.date,
@@ -72,6 +79,7 @@
             submit() {
                 const entry = { 
                     id:this.id,
+                    mem:this.mem,
                     phone:this.phone,
                     name:this.name,
                     date:this.date,
@@ -79,6 +87,7 @@
                     type:this.type,
                     comments:this.comments
                 }
+                console.log("what is the comments to be submitted here?",this.comments)
                 this.$store.dispatch('modifyEntry',entry)
                 .then(()=>{
                     this.$router.replace('/dashboard')
@@ -88,7 +97,7 @@
                 })
             },
             cancel(){
-
+                this.$router.replace('/dashboard')
             }
         },
     }
