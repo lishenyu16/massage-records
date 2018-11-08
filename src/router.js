@@ -6,6 +6,7 @@ import DashboardPage from './components/dashboard/dashboard.vue'
 import SigninPage from './components/auth/signin.vue'
 import NewCustomer from './components/new/newCustomer.vue'
 import Modify from './components/modify/modify.vue'
+import ModifyCustomer from './components/modify/modifyCustomer.vue'
 
 Vue.use(VueRouter)
 
@@ -29,6 +30,7 @@ const routes = [
   },
   { path: '/newCustomer', component: NewCustomer},
   { path: '/modify', component: Modify},
+  { path: '/modifyCustomer', component: ModifyCustomer},
   { path: '*', redirect:'/'} 
 ]
 

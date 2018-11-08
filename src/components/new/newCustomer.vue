@@ -24,7 +24,7 @@
                   id="name"
                   v-model="name">
         </div>
-        <div class="input">
+        <!-- <div class="input">
           <label for="data">Date:</label>
           <input
                   type="date"
@@ -52,7 +52,7 @@
                   type="text"
                   id="comments"
                   v-model="comments">
-        </div>
+        </div> -->
         <div class="submit">
           <button type="cancel" @click.prevent="$router.replace('/dashboard')">Cancel</button>
           <button type="submit">Submit</button>          
@@ -70,11 +70,11 @@
       return {
         name: '',
         mem: '',
-        phone: null,
-        date:'',
-        technician: '',
-        type: 'Body',
-        comments: ''
+        phone: '',
+        // date:'',
+        // technician: '',
+        // type: 'Body',
+        // comments: ''
       }
     },
     methods: {
@@ -83,16 +83,15 @@
           name: this.name,
           phone: this.phone.trim(),
           mem: this.mem.trim(),
-          date: this.date,
-          technician: this.technician,
-          type: this.type,
-          // hobbies: this.hobbyInputs.map(hobby => hobby.value),
-          comments: this.comments
+          // date: this.date,
+          // technician: this.technician,
+          // type: this.type,
+          // comments: this.comments
         }
 
         this.$store.dispatch('addCustomer',formData)
         .then(()=>{
-          this.$router.push('/dashboard')
+          this.$router.replace('/dashboard')
         })
         .catch(res=>{
           console.log(res)

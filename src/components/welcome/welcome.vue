@@ -1,9 +1,9 @@
 <template>
   <div id="welcome">
     <h1>Massage Records System</h1>
-    <div class="cta" v-if="!auth">
+    <!-- <div class="cta" v-if="!auth">
       <router-link to="/signin">登陆</router-link>
-    </div>
+    </div> -->
   </div>
 </template>
 

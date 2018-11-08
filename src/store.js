@@ -31,8 +31,8 @@ export default new Vuex.Store({
       state.user = user
     },
     clearAuthData(state){
-      state.userId=null,
-      state.idToken=null
+      state.user=null
+      // state.idToken=null
     }
   },
   actions: {
@@ -72,13 +72,16 @@ export default new Vuex.Store({
     login({commit,dispatch,state},authData){
       firebase.auth().signInWithEmailAndPassword(authData.email, authData.password)
       .then(user=>{
-        dispatch('initEntries')
+        // dispatch('initEntries')
         localStorage.setItem('userId',user.uid)
         const signedIdUser = {
           id:user.uid
         }
         commit('storeUser',signedIdUser)
         state.wrong_pw = false
+        setTimeout(()=>{
+          dispatch('logout')
+        },3600*10000)
         router.replace('./dashboard')
       })
       .catch(err=>{

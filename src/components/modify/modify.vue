@@ -7,7 +7,7 @@
                 <input type="text" class="form-control" v-model.lazy="mem">
             </div>
         </div>
-        <div class="form-group row">
+        <!-- <div class="form-group row">
             <label class="col-sm-1 col-sm-offset-4 col-form-label">Phone:</label>
             <div class="col-sm-3">
                 <input type="text" class="form-control" v-model.lazy="phone">
@@ -18,7 +18,7 @@
             <div class="col-sm-3">
                 <input type="text" class="form-control"  v-model.lazy="name">
             </div>
-        </div>
+        </div> -->
         <div class="form-group row">
             <label  class="col-sm-1 col-sm-offset-4 col-form-label">Date:</label>
             <div class="col-sm-3">
@@ -67,8 +67,8 @@
             return {
                 id: this.$route.query.entry.id,
                 mem: this.$route.query.entry.mem,
-                phone: this.$route.query.entry.phone,
-                name: this.$route.query.entry.name,
+                // phone: this.$route.query.entry.phone,
+                // name: this.$route.query.entry.name,
                 date: this.$route.query.entry.date,
                 technician: this.$route.query.entry.technician,
                 type: this.$route.query.entry.type,
@@ -80,20 +80,20 @@
                 const entry = { 
                     id:this.id,
                     mem:this.mem,
-                    phone:this.phone,
-                    name:this.name,
+                    // phone:this.phone,
+                    // name:this.name,
                     date:this.date,
                     technician:this.technician,
                     type:this.type,
                     comments:this.comments
                 }
-                console.log("what is the comments to be submitted here?",this.comments)
                 this.$store.dispatch('modifyEntry',entry)
                 .then(()=>{
+                    alert('Service record has been updated!')
                     this.$router.replace('/dashboard')
                 })
                 .catch(err=>{
-                    alert('Operation failed!')
+                    alert('Failed to update this record!')
                 })
             },
             cancel(){
